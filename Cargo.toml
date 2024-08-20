@@ -1,0 +1,12 @@
+[package]
+name = "ethereum-genesis-generator-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.86"
+clap = { version = "4.5.16", features = ["derive"] }
+ethers = "2.0.14"
+serde = "1.0.208"
+serde_json = "1.0.125"
+serial_test = "3.1.1"
