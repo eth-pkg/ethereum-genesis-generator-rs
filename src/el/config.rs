@@ -59,6 +59,6 @@ pub struct Allocation {
     pub balance: String,
     pub code: Option<String>,
     pub storage: Option<std::collections::HashMap<String, String>>,
-    pub nonce: Option<String>,
+    pub nonce: Option<u64>,
     pub secret_key: Option<String>,
 }

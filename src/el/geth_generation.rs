@@ -11,7 +11,7 @@ use super::{
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct BesuGenesisConfig {
+pub struct GethGenesisConfig {
     config: Config,
     alloc: std::collections::HashMap<String, Allocation>,
     coinbase: String,
@@ -25,22 +25,22 @@ pub struct BesuGenesisConfig {
     timestamp: String,
 }
 
-impl BesuGenesisConfig {
+impl GethGenesisConfig {
     fn for_mainnet() -> Self {
-        let mainnet_config_path = "../data/mainnet/besu_genesis.json";
+        let mainnet_config_path = "../data/mainnet/geth_genesis.json";
         serde_json::from_reader(fs::File::open(mainnet_config_path).unwrap()).unwrap()
     }
     fn for_holesky() -> Self {
-        let holesky_config_path = "../data/holesky/besu_genesis.json";
+        let holesky_config_path = "../data/holesky/geth_genesis.json";
         serde_json::from_reader(fs::File::open(holesky_config_path).unwrap()).unwrap()
     }
     fn for_sepolia() -> Self {
-        let sepolia_config_path = "../data/sepolia/besu_genesis.json";
+        let sepolia_config_path = "../data/sepolia/geth_genesis.json";
         serde_json::from_reader(fs::File::open(sepolia_config_path).unwrap()).unwrap()
     }
     fn for_devnet(genesis_config: &GenesisConfig) -> Self {
-        let devnet_config_path = "../data/devnet/besu_genesis.json";
-        let mut devnet_config: BesuGenesisConfig =
+        let devnet_config_path = "../data/devnet/geth_genesis.json";
+        let mut devnet_config: GethGenesisConfig =
             serde_json::from_reader(fs::File::open(devnet_config_path).unwrap()).unwrap();
 
         // todo replace values
@@ -54,19 +54,19 @@ impl BesuGenesisConfig {
     }
 }
 
-struct BesuGenesisConfigBuilder {
-    config: BesuGenesisConfig,
+struct GethGenesisConfigBuilder {
+    config: GethGenesisConfig,
 }
 
-impl BesuGenesisConfigBuilder {
+impl GethGenesisConfigBuilder {
     fn new(genesis_config: &GenesisConfig) -> Self {
         let config = match genesis_config.chain_id {
-            1 => BesuGenesisConfig::for_mainnet(),
-            11155111 => BesuGenesisConfig::for_sepolia(),
-            17000 => BesuGenesisConfig::for_holesky(),
-            _ => BesuGenesisConfig::for_devnet(&genesis_config),
+            1 => GethGenesisConfig::for_mainnet(),
+            11155111 => GethGenesisConfig::for_sepolia(),
+            17000 => GethGenesisConfig::for_holesky(),
+            _ => GethGenesisConfig::for_devnet(&genesis_config),
         };
-        BesuGenesisConfigBuilder { config }
+        GethGenesisConfigBuilder { config }
     }
 
     fn with_premine(mut self, genesis_config: &GenesisConfig) -> Self {
@@ -131,14 +131,14 @@ impl BesuGenesisConfigBuilder {
         self
     }
 
-    fn build(self) -> BesuGenesisConfig {
+    fn build(self) -> GethGenesisConfig {
         self.config
     }
 }
 
-impl Genesis for BesuGenesisConfig {
-    fn create_genesis(genesis_config: &GenesisConfig) -> BesuGenesisConfig {
-        BesuGenesisConfigBuilder::new(genesis_config)
+impl Genesis for GethGenesisConfig {
+    fn create_genesis(genesis_config: &GenesisConfig) -> GethGenesisConfig {
+        GethGenesisConfigBuilder::new(genesis_config)
             .with_premine(genesis_config)
             .with_premine_addrs(genesis_config)
             .with_additional_preloaded_contracts(genesis_config)
@@ -148,7 +148,7 @@ impl Genesis for BesuGenesisConfig {
     }
 }
 
-impl SerializableToFile for BesuGenesisConfig {}
+impl SerializableToFile for GethGenesisConfig {}
 
 fn add_alloc_entry(
     alloc: &mut std::collections::HashMap<String, Allocation>,

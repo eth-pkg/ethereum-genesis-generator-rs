@@ -1,25 +1,39 @@
-use anyhow::Result;
-use std::{collections::HashMap, fs};
+use anyhow::{Context, Result};
+use std::{collections::HashMap, fs, path::PathBuf};
 
+use crate::el::{besu_generation::BesuGenesisConfig, chainspec_generation::ChainspecGenesisConfig, genesis_config::{GenesisConfig, GenesisConfigBuilder}, geth_generation::GethGenesisConfig};
 use crate::el::serializabe_to_file::{Genesis, SerializableToFile};
-use crate::el::{besu_generation::BesuGenesisConfig, genesis_config::GenesisConfig};
 
-const METADATA_FOLDER: &str = "/tmp/metadata";
-// const GETH_GENESIS: &str = "/tmp/metadata/genesis.json";
-// const CHAINSPEC_GENESIS: &str = "/tmp/metadata/chainspec.json";
-const BESU_GENESIS: &str = "/tmp/metadata/besu.json";
 
-pub fn gen_el_config(context: HashMap<String, String>) -> Result<()> {
-    // Create metadata directory
-    fs::create_dir_all(METADATA_FOLDER)
-        .expect(format!("Failed to create {}", METADATA_FOLDER).as_str());
-    let genesis_config = GenesisConfig::try_from(context).unwrap();
+pub fn get_genesis_config(context: HashMap<String, String>) -> Result<GenesisConfig> {
+    let genesis_config = GenesisConfigBuilder::new()
+        .from_hashmap(context)?
+        .with_default_premine()
+        .build();
+    return Ok(genesis_config);
+}
 
-    // GethGenesisConfig::create_genesis(&genesis_config).save_if_not_exists(GETH_GENESIS);
+pub fn gen_el_config(context: HashMap<String, String>, metadata_folder: PathBuf) -> Result<()> {
+    fs::create_dir_all(&metadata_folder)
+        .context("Failed to create metadata folder")?;
 
-    // ChainspecGenesisConfig::create_genesis(&genesis_config).save_if_not_exists(CHAINSPEC_GENESIS);
+    let genesis_config = get_genesis_config(context)?;
+    let geth_genesis_path = metadata_folder.join("genesis.json");
+    GethGenesisConfig::create_genesis(&genesis_config).save_if_not_exists(geth_genesis_path);
 
-    BesuGenesisConfig::create_genesis(&genesis_config).save_if_not_exists(BESU_GENESIS);
+    let chainspec_genesis_path = metadata_folder.join("chainspec.json");
+    ChainspecGenesisConfig::create_genesis(&genesis_config).save_if_not_exists(chainspec_genesis_path);
+
+    let besu_genesis_path = metadata_folder.join("besu.json");
+    BesuGenesisConfig::create_genesis(&genesis_config).save_if_not_exists(besu_genesis_path);
 
     Ok(())
+}
+
+pub fn gen_cl_config(context: HashMap<String, String>, metadata_folder: PathBuf) -> Result<()> {
+    todo!()
+}
+
+pub fn gen_shared_files(context: HashMap<String, String>, metadata_folder: PathBuf) -> Result<()> {
+    todo!()
 }
